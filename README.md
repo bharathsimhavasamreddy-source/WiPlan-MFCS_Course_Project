@@ -1,11 +1,11 @@
-# 📡 WiPlan: Interference-Aware Campus Wi-Fi Planning
+# WiPlan: Interference-Aware Campus Wi-Fi Planning
 ### Graph Colouring, DPLL SAT Solving, and Weighted Bipartite Matching
 
 > **One-Line Summary:** WiPlan computes optimal, non-interfering Wi-Fi channel assignments for campus access points (APs) and connects students to the strongest APs using graph theory, exact SAT solving, and combinatorial optimization.
 
 ---
 
-## 🎯 The Problem
+##  The Problem
 
 Modern university campuses feature dozens of high-density Access Points (APs) placed across hostels, research laboratories, libraries, and student cafeterias. In the widely used **2.4 GHz ISM band**, there are only **3 clean, non-overlapping channels: 1, 6, and 11**.
 
@@ -16,7 +16,7 @@ If two nearby APs share the same frequency channel:
 
 ---
 
-## 🔬 Mathematical Formulations & Course Topics
+##  Mathematical Formulations & Course Topics
 
 ```
                           ┌─────────────────────────────┐
@@ -115,7 +115,7 @@ When $\chi(G) \ge 4$ (e.g. dense auditoriums), no 0-conflict 3-colouring exists.
 
 ---
 
-## 🚀 Quick Start Guide
+##  Quick Start Guide
 
 ### 1. Launch the Interactive Web Application
 ```bash
@@ -135,7 +135,7 @@ python3 run.py --test
 
 ---
 
-## 🖥️ Interactive Web Frontend Highlights
+##  Interactive Web Frontend Highlights
 
 1. **Campus Network Map:**
    - Architectural building zones (Hostels, CS Labs, Central Library, Admin, Cafeteria, Quad).
@@ -156,7 +156,7 @@ python3 run.py --test
 
 ---
 
-## 📂 Project Structure
+##  Project Structure
 
 ```
 wifi/
