@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WiPlan — Campus Wi-Fi Channel Planner</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+  <!-- ================= TOP BAR ================= -->
+  <header id="top-bar">
+    <!-- Brand Logo -->
+    <div class="brand">
+      <img src="/logo.png" alt="WiPlan — Smart Wi-Fi. No Interference." class="brand-logo-img">
+    </div>
+
+    <!-- Scenario Selector -->
+    <div class="scenario-nav">
+      <span class="scenario-label">Scenario:</span>
+      <select id="preset-selector">
+        <option value="small_campus">Small Campus (8 APs · 10 Users)</option>
+        <option value="hostel_cluster">Hostel Cluster (10 APs · 14 Users)</option>
+        <option value="library_labs">Library & Labs (12 APs · 18 Users)</option>
+        <option value="dense_campus">Dense Campus (10 APs · 15 Users)</option>
+        <option value="high_interference">High Interference (11 APs · 11 Users)</option>
+        <option value="full_campus" selected>Full Campus (15 APs · 22 Users)</option>
+      </select>
+    </div>
+  </header>
+
+  <!-- ================= MAIN LAYOUT ================= -->
+  <div id="app-layout">
+
+    <!-- LEFT: MAIN CAMPUS NETWORK VISUALIZATION (~70%) -->
+    <main id="map-panel">
+
+      <!-- Map Toolbar (Text-only layer controls) -->
+      <div id="map-toolbar">
+        <button class="layer-btn active" id="btn-toggle-coverage">Coverage</button>
+        <button class="layer-btn active" id="btn-toggle-interference">Interference</button>
+        <button class="layer-btn active" id="btn-toggle-students">Users</button>
+        <button class="layer-btn active" id="btn-toggle-labels">Labels</button>
+      </div>
+
+      <!-- Canvas Container (Auto-fit to 100% of container) -->
+      <div id="canvas-container">
+        <canvas id="network-canvas" width="1200" height="700"></canvas>
+      </div>
+
+      <!-- Hover Tooltip -->
+      <div id="node-tooltip"></div>
+    </main>
+
+    <!-- RIGHT: OPTIMIZATION PIPELINE (~30%) -->
+    <aside id="pipeline-panel">
+
+      <!-- Header: Network Optimization Summary -->
+      <section class="pipeline-summary-card">
+        <div class="summary-heading">Network Optimization</div>
+        
+        <div class="before-after-row">
+          <div class="comparison-metric">
+            <span class="label">Before</span>
+            <span class="val val-before" id="stat-before-conflicts">14 conflicts</span>
+          </div>
+          <span class="arrow-divider">→</span>
+          <div class="comparison-metric">
+            <span class="label">After</span>
+            <span class="val val-after" id="stat-after-conflicts">0 conflicts</span>
+          </div>
+        </div>
+
+        <div class="network-totals" id="network-totals-caption">
+          15 Access Points · 22 Students · 3 Channels
+        </div>
+      </section>
+
+      <!-- Primary Action CTA -->
+      <section class="primary-action-wrap">
+        <button class="btn-run-wiplan" id="btn-run-wiplan">
+          <span id="run-btn-text">Run WiPlan</span>
+        </button>
+
+        <!-- Segmented View Switcher -->
+        <div class="view-switcher">
+          <button class="view-segment active before" id="btn-view-before">
+            Before Optimization
+          </button>
+          <button class="view-segment after" id="btn-view-after">
+            After WiPlan
+          </button>
+        </div>
+      </section>
+
+      <!-- The 5 Project Stages Progression -->
+      <section class="steps-container">
+
+        <!-- Step 1: Bipartite Check -->
+        <div class="step-card" id="card-step-1" onclick="highlightStepStage(1)">
+          <div class="step-header-row">
+            <div class="step-num-title">
+              <span class="step-num-badge">01</span>
+              <span class="step-title">Bipartite Check</span>
+            </div>
+            <span class="step-status-tag pending" id="tag-step-1">Pending</span>
+          </div>
+          <div class="step-desc">Can the network function using only 2 channels?</div>
+          <div class="step-result-box" id="res-step-1">
+            <span>Result:</span>
+            <span id="res-val-step-1">—</span>
+          </div>
+        </div>
+
+        <!-- Step 2: Exact 3-Channel Plan -->
+        <div class="step-card" id="card-step-2" onclick="highlightStepStage(2)">
+          <div class="step-header-row">
+            <div class="step-num-title">
+              <span class="step-num-badge">02</span>
+              <span class="step-title">Exact 3-Channel Plan</span>
+            </div>
+            <span class="step-status-tag pending" id="tag-step-2">Pending</span>
+          </div>
+          <div class="step-desc">Solve conflict-free 3-channel assignment using SAT / DPLL.</div>
+          <div class="step-result-box" id="res-step-2">
+            <span>Result:</span>
+            <span id="res-val-step-2">—</span>
+          </div>
+        </div>
+
+        <!-- Step 3: Spectrum Separation -->
+        <div class="step-card" id="card-step-3" onclick="highlightStepStage(3)">
+          <div class="step-header-row">
+            <div class="step-num-title">
+              <span class="step-num-badge">03</span>
+              <span class="step-title">Spectrum Separation</span>
+            </div>
+            <span class="step-status-tag pending" id="tag-step-3">Pending</span>
+          </div>
+          <div class="step-desc">Enforce 802.11 25 MHz non-overlapping spacing (Δ ≥ 5).</div>
+          <div class="step-result-box" id="res-step-3">
+            <span>Channels:</span>
+            <span id="res-val-step-3">1 · 6 · 11</span>
+          </div>
+        </div>
+
+        <!-- Step 4: Interference Minimization -->
+        <div class="step-card" id="card-step-4" onclick="highlightStepStage(4)">
+          <div class="step-header-row">
+            <div class="step-num-title">
+              <span class="step-num-badge">04</span>
+              <span class="step-title">Interference Minimization</span>
+            </div>
+            <span class="step-status-tag pending" id="tag-step-4">Pending</span>
+          </div>
+          <div class="step-desc">Local Search guarantees removal of ≥ 2/3 of clashes.</div>
+          <div class="step-result-box" id="res-step-4">
+            <span>Conflicts:</span>
+            <span id="res-val-step-4">—</span>
+          </div>
+        </div>
+
+        <!-- Step 5: Student Assignment -->
+        <div class="step-card" id="card-step-5" onclick="highlightStepStage(5)">
+          <div class="step-header-row">
+            <div class="step-num-title">
+              <span class="step-num-badge">05</span>
+              <span class="step-title">Student Assignment</span>
+            </div>
+            <span class="step-status-tag pending" id="tag-step-5">Pending</span>
+          </div>
+          <div class="step-desc">Connect users to capacity-limited APs via weighted matching.</div>
+          <div class="step-result-box" id="res-step-5">
+            <span>Users assigned:</span>
+            <span id="res-val-step-5">—</span>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- AP Inspector (when an AP is clicked) -->
+      <section id="inspector-box">
+        <div class="inspector-head">
+          <span class="inspector-name" id="insp-name">AP-01</span>
+          <button class="inspector-close" id="btn-close-inspector">✕</button>
+        </div>
+        <div class="inspector-grid">
+          <div class="inspector-cell">
+            <div class="inspector-cell-lbl">Channel</div>
+            <div class="inspector-cell-val" id="insp-channel">—</div>
+          </div>
+          <div class="inspector-cell">
+            <div class="inspector-cell-lbl">Users</div>
+            <div class="inspector-cell-val" id="insp-users">0</div>
+          </div>
+          <div class="inspector-cell">
+            <div class="inspector-cell-lbl">Clashes</div>
+            <div class="inspector-cell-val" id="insp-clashes">0</div>
+          </div>
+        </div>
+      </section>
+
+    </aside>
+
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
